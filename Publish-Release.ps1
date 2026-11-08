@@ -3,7 +3,10 @@ $ErrorActionPreference='Stop'
 if(!$AndroidHome){$AndroidHome=$env:ANDROID_SDK_ROOT}
 if(!$AndroidHome){throw 'Set ANDROID_HOME'}
 $bt=Join-Path $AndroidHome "build-tools/$BuildToolsVersion";$win=$env:OS -eq 'Windows_NT';$exe=if($win){'.exe'}else{''}
-$apkPath=(Resolve-Path -LiteralPath $Apk).Path;$notesPath=(Resolve-Path -LiteralPath $NotesFile).Path
+$sourceApk=(Resolve-Path -LiteralPath $Apk).Path;$notesPath=(Resolve-Path -LiteralPath $NotesFile).Path
+# Android's ZIP inspector on Windows may reject non-ASCII archive paths.
+$stage=Join-Path ([IO.Path]::GetTempPath()) ('vlados-release-'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory $stage|Out-Null
+$apkPath=Join-Path $stage 'input.apk';Copy-Item -LiteralPath $sourceApk -Destination $apkPath
 $badging=& (Join-Path $bt "aapt$exe") dump badging $apkPath
 if($LASTEXITCODE){throw 'Cannot inspect APK'}
 $line=$badging|Select-Object -First 1
@@ -14,7 +17,6 @@ $tag='v'+$version
 $signer=& (Join-Path $bt $(if($win){'apksigner.bat'}else{'apksigner'})) verify --print-certs $apkPath
 if($LASTEXITCODE){throw 'APK signature is invalid'}
 if(($signer -join "`n") -notmatch 'certificate SHA-256 digest: f37cc90fcd9417befec38765bc59e32ab780610010a4bbbd67e3cb137b7cf58b'){throw 'APK is signed by a different key; installed TVs will reject it.'}
-$stage=Join-Path ([IO.Path]::GetTempPath()) ('vlados-release-'+[guid]::NewGuid().ToString('N'));New-Item -ItemType Directory $stage|Out-Null
 $name="VladOS-$version.apk";Copy-Item -LiteralPath $apkPath -Destination (Join-Path $stage $name)
 $metadata=[ordered]@{packageName='ru.ilya.alitahome';versionCode=$code;versionName=$version;apkUrl="https://github.com/$Repository/releases/download/$tag/$name";size=(Get-Item -LiteralPath $apkPath).Length;sha256=(Get-FileHash -LiteralPath $apkPath -Algorithm SHA256).Hash.ToLowerInvariant();notes=[IO.File]::ReadAllText($notesPath)}
 $json=Join-Path $stage 'update.json';[IO.File]::WriteAllText($json,($metadata|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))
