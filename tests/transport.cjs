@@ -18,3 +18,4 @@ if(sandbox.sent[1]!=='http://127.0.0.1:8090/torrents'||sandbox.sent[3]!=='{"acti
 sandbox.VladOSCinema.play({url:'http://127.0.0.1:8090/stream/film.mkv?link=abc&index=1&preload',title:'Local torrent'});
 if(!plays.at(-1).url.endsWith('&play'))throw Error('Native player must receive playable stream, not preload request');
 console.log('Local TorrServer native transport and playback URL passed');
+let rootCheck=new sandbox.XMLHttpRequest();rootCheck.open('GET','http://127.0.0.1:8090');rootCheck.send();if(sandbox.sent[1]!=='http://127.0.0.1:8090')throw Error('Lampa server root check must use native transport');

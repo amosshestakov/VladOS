@@ -14,7 +14,7 @@
     Object.keys(defaults).forEach(function (key) { if(localStorage.getItem(key) === null) localStorage.setItem(key,defaults[key]); });
 
     function handled(url) {
-        if(/^http:\/\/127\.0\.0\.1:8090\/(?:echo|settings|torrents|cache|viewed|stat|version|search|torznab\/search)\/?(?:\?|$)/.test(url))return true;
+        if(/^http:\/\/127\.0\.0\.1:8090(?:\/(?:echo|settings|torrents|cache|viewed|stat|version|search|torznab\/search|gst\/echo))?\/?(?:\?|$)/.test(url))return true;
         return /^https:\/\/(?:api\.themoviedb\.org|apitmdb\.cub\.best|rezka\.fi|rezka\.ag|hdrezka\.ag|hdrezka\.me|hdrezka-home\.tv|filmixapp\.cyou|filmix\.gg|kodik-api\.com|kodik\.info|kodik\.cc|kodikdb\.com|plapi\.cdnvideohub\.com|api\.anilibria\.app|api\.anilibria\.tv|api\.apbugall\.org|api\.srvkp\.com|kinopoiskapiunofficial\.tech)(?::443)?\//i.test(url);
     }
     function Request() {
