@@ -9,6 +9,10 @@ public class UpdatePolicyHarness {
         check(UpdatePolicy.transport("https://release-assets.githubusercontent.com/github-production-release-asset/1/a?sig=x"),"GitHub CDN redirect");
         check(!UpdatePolicy.transport("https://release-assets.githubusercontent.com.evil.test/a"),"reject fake CDN");
         check(!UpdatePolicy.transport("http://127.0.0.1/update.apk"),"reject local insecure update");
+        check(UpdatePolicy.transport(UpdatePolicy.RAW_MANIFEST),"fixed raw metadata channel");
+        check(UpdatePolicy.artifact(UpdatePolicy.RAW_APK),"fixed raw APK channel");
+        check(!UpdatePolicy.artifact("https://raw.githubusercontent.com/other/VladOS/updates/VladOS.apk"),"reject another repository mirror");
+        check(!UpdatePolicy.transport(UpdatePolicy.RAW_APK+"?other=1"),"reject altered mirror URL");
         byte[] digest=MessageDigest.getInstance("SHA-256").digest("verified apk fixture".getBytes("UTF-8"));String expected=UpdatePolicy.hex(digest);
         check(UpdatePolicy.hashMatches(expected.toUpperCase(),digest),"valid hash");
         check(!UpdatePolicy.hashMatches("0000000000000000000000000000000000000000000000000000000000000000",digest),"reject corrupted file");

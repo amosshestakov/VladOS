@@ -54,13 +54,22 @@ public final class UpdateActivity extends Activity {
             byte[] data=new byte[8192];int n;while((n=in.read(data))!=-1){if(out.size()+n>256*1024)throw new IOException("Некорректные данные выпуска");out.write(data,0,n);}return out.toString("UTF-8");
         }finally{c.disconnect();connection=null;}
     }
+    private JSONObject metadata()throws Exception{
+        // Raw GitHub CDN remains reachable on TV networks that block release pages.
+        try{return new JSONObject(json(UpdatePolicy.RAW_MANIFEST));}catch(Exception unavailable){}
+        JSONObject latest=new JSONObject(json(UpdatePolicy.API));
+        if(latest.optBoolean("draft")||latest.optBoolean("prerelease"))throw new IOException("Стабильный выпуск пока не опубликован");
+        JSONArray assets=latest.getJSONArray("assets");String metadata=null;Set<String> urls=new HashSet<>();
+        for(int i=0;i<assets.length();i++){JSONObject a=assets.getJSONObject(i);String url=a.optString("browser_download_url");if(UpdatePolicy.releaseAsset(url)){urls.add(url);if("update.json".equals(a.optString("name")))metadata=url;}}
+        if(metadata==null)throw new IOException("В выпуске нет данных для обновления телевизора");
+        JSONObject info=new JSONObject(json(metadata));if(!urls.contains(info.optString("apkUrl")))throw new IOException("APK отсутствует в опубликованном выпуске");
+        if(!info.has("notes"))info.put("notes",latest.optString("body",""));return info;
+    }
     private void check(){if(busy)return;release=null;downloaded=null;download.setVisibility(android.view.View.GONE);notes.setText("");status.setText("Проверяем новые версии…");busy(true);
         worker.execute(()->{try{
-            JSONObject latest=new JSONObject(json(UpdatePolicy.API));if(latest.optBoolean("draft")||latest.optBoolean("prerelease"))throw new IOException("Стабильный выпуск пока не опубликован");
-            JSONArray assets=latest.getJSONArray("assets");String metadata=null;Set<String> urls=new HashSet<>();for(int i=0;i<assets.length();i++){JSONObject a=assets.getJSONObject(i);String url=a.optString("browser_download_url");if(UpdatePolicy.releaseAsset(url)){urls.add(url);if("update.json".equals(a.optString("name")))metadata=url;}}
-            if(metadata==null)throw new IOException("В выпуске нет данных для обновления телевизора");JSONObject info=new JSONObject(json(metadata));
-            if(!getPackageName().equals(info.optString("packageName"))||!UpdatePolicy.releaseAsset(info.optString("apkUrl"))||!urls.contains(info.optString("apkUrl"))||!info.optString("sha256").matches("[a-fA-F0-9]{64}")||info.optLong("size",0)<=0||info.optLong("size")>UpdatePolicy.LIMIT||info.optInt("versionCode",0)<=0)throw new IOException("Данные обновления не прошли проверку");
-            ui(()->{busy(false);release=info;notes.setText(info.optString("notes",latest.optString("body","")));if(info.optInt("versionCode")<=installed.versionCode){status.setText("У вас актуальная версия VladOS");check.requestFocus();}else{status.setText("Доступна версия "+info.optString("versionName")+" · "+String.format(Locale.ROOT,"%.1f МБ",info.optLong("size")/1048576d));download.setVisibility(android.view.View.VISIBLE);download.requestFocus();}});
+            final JSONObject info=metadata();
+            if(!getPackageName().equals(info.optString("packageName"))||!UpdatePolicy.artifact(info.optString("apkUrl"))||!info.optString("sha256").matches("[a-fA-F0-9]{64}")||info.optLong("size",0)<=0||info.optLong("size")>UpdatePolicy.LIMIT||info.optInt("versionCode",0)<=0)throw new IOException("Данные обновления не прошли проверку");
+            ui(()->{busy(false);release=info;notes.setText(info.optString("notes",""));if(info.optInt("versionCode")<=installed.versionCode){status.setText("У вас актуальная версия VladOS");check.requestFocus();}else{status.setText("Доступна версия "+info.optString("versionName")+" · "+String.format(Locale.ROOT,"%.1f МБ",info.optLong("size")/1048576d));download.setVisibility(android.view.View.VISIBLE);download.requestFocus();}});
         }catch(Exception e){failed(e);}});
     }
     private void download(){if(busy||release==null)return;if(downloaded!=null){install();return;}final JSONObject info=release;busy(true);status.setText("Скачиваем обновление…");

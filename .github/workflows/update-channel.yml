@@ -1,0 +1,58 @@
+name: Publish TV download channel
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Stable release tag to mirror
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: tv-update-channel
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify the latest stable release
+        shell: bash
+        run: |
+          set -euo pipefail
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name)
+          if [ "$latest" != "$RELEASE_TAG" ]; then
+            echo 'Refusing to replace the channel with an older or prerelease version.'
+            exit 1
+          fi
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern 'VladOS-*.apk' --pattern update.json --dir "$RUNNER_TEMP/tv-channel"
+          node <<'NODE'
+          const fs=require('fs'),path=require('path'),crypto=require('crypto');
+          const folder=path.join(process.env.RUNNER_TEMP,'tv-channel');
+          const info=JSON.parse(fs.readFileSync(path.join(folder,'update.json'),'utf8'));
+          const apks=fs.readdirSync(folder).filter(n=>n.endsWith('.apk'));
+          if(apks.length!==1)throw Error('Expected exactly one APK');
+          const apk=fs.readFileSync(path.join(folder,apks[0]));
+          if(info.packageName!=='ru.ilya.alitahome'||!Number.isInteger(info.versionCode)||info.versionCode<1||info.size!==apk.length||crypto.createHash('sha256').update(apk).digest('hex')!==info.sha256)throw Error('Release verification failed');
+          fs.renameSync(path.join(folder,apks[0]),path.join(folder,'VladOS.apk'));
+          info.apkUrl='https://raw.githubusercontent.com/'+process.env.GITHUB_REPOSITORY+'/updates/VladOS.apk';
+          fs.writeFileSync(path.join(folder,'update.json'),JSON.stringify(info,null,2)+'\n');
+          NODE
+      - name: Publish the disposable updates branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout --orphan tv-channel-publish
+          git rm -rf .
+          cp "$RUNNER_TEMP/tv-channel/VladOS.apk" ./VladOS.apk
+          cp "$RUNNER_TEMP/tv-channel/update.json" ./update.json
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add VladOS.apk update.json
+          git commit -m "TV update channel for $RELEASE_TAG"
+          # This branch holds only the latest download; version history stays in Releases.
+          git push --force origin HEAD:updates
