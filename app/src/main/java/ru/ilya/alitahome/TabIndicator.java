@@ -1,0 +1,3 @@
+package ru.ilya.alitahome;
+import android.content.Context;import android.graphics.*;import android.graphics.drawable.Drawable;
+final class TabIndicator extends Drawable {final Context c;final Paint p=new Paint(3);TabIndicator(Context context){c=context;}@Override public void draw(Canvas canvas){p.setColor(VladDesign.VIOLET);p.setStrokeCap(Paint.Cap.ROUND);p.setStrokeWidth(VladDesign.dp(c,2));float center=getBounds().centerX(),y=getBounds().bottom-VladDesign.dp(c,2);canvas.drawLine(center-VladDesign.dp(c,5.5f),y,center+VladDesign.dp(c,5.5f),y,p);}@Override public void setAlpha(int v){}@Override public void setColorFilter(ColorFilter f){}@Override public int getOpacity(){return PixelFormat.TRANSLUCENT;}}

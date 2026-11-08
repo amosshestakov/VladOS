@@ -1,0 +1,17 @@
+{
+  "lampa": {
+    "repo": "yumata/lampa",
+    "commit": "6fcdfab624f98ac0f7a91244e3d3b637f104a8c2"
+  },
+  "hdrezka": {
+    "repo": "ABurnglv/lampa-hdrezka-plugin",
+    "commit": "6c8d2af666fbf03b4403e5a5d10f5f0e81bc97cc"
+  },
+  "base": "VladOS 0.3.1",
+  "version": "0.5.1",
+  "online_mod": {
+    "repo": "nb557/plugins",
+    "path": "online_mod.js",
+    "sha256": "F70601CF97A7936A86CDE605253D3C1C2E3F85976C7B39D277F38D6FB9A8B8A0"
+  }
+}

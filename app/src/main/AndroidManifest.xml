@@ -1,0 +1,37 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="ru.ilya.alitahome" android:versionCode="12" android:versionName="0.5.4">
+    <uses-sdk android:minSdkVersion="23" android:targetSdkVersion="28" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /><uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <application android:label="VladOS" android:icon="@drawable/ic_vlados_launcher" android:banner="@drawable/tv_banner" android:theme="@style/AppTheme" android:allowBackup="false" android:networkSecurityConfig="@xml/cinema_network_security">
+        <activity android:name=".MainActivity" android:launchMode="singleTask" android:exported="true" android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+    <provider android:name=".ApkProvider" android:authorities="ru.ilya.alitahome.apks" android:exported="false" android:grantUriPermissions="true" />
+        <activity android:name=".InstallerActivity" android:exported="false" android:screenOrientation="landscape" />
+        <service android:name=".RemoteService" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:exported="true" android:label="VladOS — кнопка меню">
+            <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/remote_service" />
+        </service>
+    <activity android:name=".SettingsActivity" android:exported="false" android:screenOrientation="landscape" />
+        <receiver android:name=".SleepReceiver" android:exported="false" />
+    <activity android:name=".CinemaActivity" android:exported="false" android:process=":cinema" android:screenOrientation="landscape" android:hardwareAccelerated="true" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+    <activity android:name=".ProviderActivity" android:exported="false" android:process=":cinema" android:screenOrientation="landscape" android:hardwareAccelerated="true" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+        <activity android:name=".UpdateActivity" android:exported="false" android:launchMode="singleTop" android:screenOrientation="landscape" />
+    </application>
+</manifest>

@@ -1,0 +1,31 @@
+name: Verify Android build
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK packages
+        run: sdkmanager 'platforms;android-28' 'build-tools;35.0.0'
+      - name: Build unsigned validation APK
+        shell: pwsh
+        run: ./Build.ps1 -Unsigned
+      - name: Check updater policy
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force /tmp/vlados-tests | Out-Null
+          javac -encoding UTF-8 -d /tmp/vlados-tests app/src/main/java/ru/ilya/alitahome/UpdatePolicy.java tests/UpdatePolicyHarness.java
+          if ($LASTEXITCODE) { throw 'Compilation failed' }
+          java -cp /tmp/vlados-tests ru.ilya.alitahome.UpdatePolicyHarness
+          if ($LASTEXITCODE) { throw 'Updater tests failed' }

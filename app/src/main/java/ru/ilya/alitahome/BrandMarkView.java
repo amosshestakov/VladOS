@@ -1,0 +1,7 @@
+package ru.ilya.alitahome;
+import android.content.Context;import android.graphics.*;import android.os.SystemClock;import android.view.View;
+final class BrandMarkView extends View {
+ final Paint paint=new Paint(3);final long start=SystemClock.uptimeMillis();final Path letter=new Path();
+ BrandMarkView(Context c){super(c);letter.moveTo(30,31);letter.lineTo(43,31);letter.lineTo(50,51);letter.lineTo(57,31);letter.lineTo(70,31);letter.lineTo(55,68);letter.lineTo(45,68);letter.close();}
+ @Override protected void onDraw(Canvas canvas){super.onDraw(canvas);canvas.save();canvas.scale(getWidth()/100f,getHeight()/100f);long elapsed=SystemClock.uptimeMillis()-start;boolean moving=VladDesign.motion(getContext());float progress=moving?Math.min(1,elapsed/1000f):1;paint.setStyle(Paint.Style.STROKE);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeWidth(9);paint.setColor(VladDesign.VIOLET);canvas.drawArc(new RectF(10,10,90,90),-40,-303*progress,false,paint);paint.setStyle(Paint.Style.FILL);paint.setColor(VladDesign.TEXT);paint.setAlpha(moving?(int)(Math.min(1,Math.max(0,elapsed-400)/600f)*255):255);canvas.drawPath(letter,paint);paint.setAlpha(255);if(moving&&elapsed>900){paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(4);paint.setColor(VladDesign.TEXT);canvas.drawArc(new RectF(10,10,90,90),-40-(elapsed%1600)*303f/1600,-15,false,paint);}canvas.restore();if(moving&&isShown())postInvalidateDelayed(32);}
+}

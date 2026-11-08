@@ -1,0 +1,42 @@
+/* VladOS cinema theme. Keep Lampa's proven focus/navigation geometry. */
+:root { color-scheme:dark; --vl-bg:#080a0d; --vl-panel:#151a22; --vl-ink:#eaf0f6; --vl-muted:#93a1b2; --vl-accent:#79dcce; }
+html,body,.body,.activity,.settings { background-color:var(--vl-bg)!important; color:var(--vl-ink); }
+body { font-family:'Segoe UI',sans-serif; }
+.background { opacity:.22!important; }
+.head { background:linear-gradient(180deg,#080a0d 30%,rgba(8,10,13,0))!important; }
+.head__logo { font-size:1.35em; font-weight:600; letter-spacing:-.035em; color:var(--vl-ink); }
+.head__logo svg { display:none; }
+.head__logo-icon { width:1.8em!important; }
+.vlados-mark { display:block; color:var(--vl-accent);font-size:1.8em;font-weight:700;line-height:1; }
+.head__title { font-size:1.1em!important; }
+.head__action.open--notice { display:none!important; }
+.menu { background:var(--vl-bg)!important; }
+.menu__item,.head__action,.full-start__button,.full-start-new__button,.full-start-new__buttons .selector,.settings-param,.selectbox-item,.online,.simple-button { border-radius:.65em!important; }
+.menu__item.focus,.head__action.focus,.settings-param.focus,.selectbox-item.focus,.online.focus,.simple-button.focus,.full-start__button.focus,.full-start-new__button.focus,.full-start-new__buttons .selector.focus { background:#263a40!important; color:var(--vl-ink)!important; box-shadow:inset 0 0 0 .09em var(--vl-accent)!important; }
+.card.focus .card__view { box-shadow:0 0 0 .16em var(--vl-accent)!important; }
+.card.focus .card__view::after,.card.hover .card__view::after { display:none!important; }
+.card__view,.card__img { border-radius:.65em!important; }
+.card.focus .card__view,.card:hover .card__view { transform:none!important; }
+.modal__content,.selectbox__content,.settings__content,.settings__body { background:var(--vl-panel)!important; border-radius:1em!important; }
+.modal,.selectbox { background:rgba(0,0,0,.76)!important; }
+.view--rezka { background:var(--vl-panel)!important; color:var(--vl-ink)!important; }
+.view--rezka.focus { background:var(--vl-accent)!important; color:#080a0d!important; }
+.full-start-new__title,.full-start__title { letter-spacing:-.025em; }
+.player { background:#000!important; }
+.player-panel,.player-footer { background:linear-gradient(transparent,rgba(0,0,0,.9))!important; }
+.player-panel__position,.player-panel__progress { background-color:var(--vl-accent)!important; }
+.selector { transition:background-color .12s ease,color .12s ease,box-shadow .12s ease!important; }
+.card__title { color:var(--vl-ink); }
+.card__age,.card__type,.full-start-new__details,.full-start__details { color:var(--vl-muted); }
+.welcome { background:var(--vl-bg)!important; }
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+
+.full-start-new__reactions,.reaction-ask { display:none!important; }
+.settings-folder.focus { background:#263a40!important; box-shadow:inset .12em 0 var(--vl-accent); }
+
+.settings-param[data-name="vlados_test"] .settings-param__value,.settings-param[data-name="rezka_login_button"] .settings-param__value,.settings-param[data-name="rezka_logout_button"] .settings-param__value {display:none!important;}
+
+/* Supplied VladOS redesign palette */
+:root{--vl-bg:#0B0A13;--vl-panel:#181528;--vl-ink:#F2F1F8;--vl-muted:#A19DB8;--vl-accent:#8B4DFF}.head__logo-icon .vlados-mark{color:#8B4DFF}.view--rezka.focus{color:#F2F1F8!important}
+
+@font-face{font-family:VladOnest;src:url('fonts/vlados-onest.ttf')}body{font-family:VladOnest,sans-serif!important}
